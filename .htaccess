@@ -1,0 +1,61 @@
+# ----------------------------------------------------------------------
+# 1. ENFORCEMENT & ENVIRONMENT
+# ----------------------------------------------------------------------
+# Disable directory listings
+Options -Indexes -Multiviews
+
+# Ensure UTF-8 encoding for security and consistency
+AddDefaultCharset UTF-8
+
+# Force HTTPS (Protects against MITM)
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# ----------------------------------------------------------------------
+# 2. THE "LOCKDOWN" (Industry Standard Default-Deny)
+# ----------------------------------------------------------------------
+# Prevent direct access to any file except index.php and specific assets
+<FilesMatch "\.(php|inc|map|sh|sql|log|ini|json|yml|yaml|txt)$">
+    <If "%{REQUEST_URI} !~ m#^/revolutionofbliss-php/index\.php$#">
+        Require all denied
+    </If>
+</FilesMatch>
+
+# ----------------------------------------------------------------------
+# 3. ANTI-HACKER FILTERS (XSS, SQLi, RFI, LFI)
+# ----------------------------------------------------------------------
+# Block any URL containing common exploit patterns
+RewriteCond %{QUERY_STRING} (?:base64_encode|eval|system|passthru|exec|shell_exec|phpinfo) [NC,OR]
+RewriteCond %{QUERY_STRING} (?:concat|union|select|insert|delete|update|drop|into|load_file|outfile) [NC,OR]
+RewriteCond %{QUERY_STRING} (?:<|%3C).*script.*(>|%3E) [NC,OR]
+RewriteCond %{QUERY_STRING} (?:_REQUEST|GLOBALS|HTTP_RAW_POST_DATA|COOKIE) [NC,OR]
+# Block LFI (Local File Inclusion) attempts via the ?site= parameter
+RewriteCond %{QUERY_STRING} (\.\./|\.\.\\) [NC]
+RewriteRule ^.*$ - [F,L]
+
+# ----------------------------------------------------------------------
+# 4. MULTI-TENANT SUBDIRECTORY ROUTER
+# ----------------------------------------------------------------------
+RewriteBase /revolutionofbliss-php/
+
+# Block direct access to the core engine folders
+RewriteRule ^(config|templates|includes|vendor|bin|logs)/ - [F,L]
+
+# If the request isn't a physical file/folder, send to index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# ----------------------------------------------------------------------
+# 5. CONTENT SECURITY & BOTS
+# ----------------------------------------------------------------------
+# Prevent your site from being embedded in an iframe (Clickjacking)
+Header set X-Frame-Options "SAMEORIGIN"
+# Block MIME type sniffing
+Header set X-Content-Type-Options "nosniff"
+# Cross-site scripting protection for older browsers
+Header set X-XSS-Protection "1; mode=block"
+
+# Block access to hidden files (e.g., .git, .env)
+RewriteRule "(^|/)\.(?!well-known/)" - [F]
