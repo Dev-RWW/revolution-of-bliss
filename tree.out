@@ -1,0 +1,12 @@
+.
+├── config
+├── public
+│   └── assets
+├── src
+├── templates
+└── vendor
+    ├── composer
+    └── phpmailer
+        └── phpmailer
+            ├── language
+            └── src
