@@ -1,0 +1,8 @@
+{
+    "autoload": {
+        "psr-4": {
+            "Nexus\\": "src/Nexus/",
+            "Gateway\\": "src/Gateway/"
+        }
+    }
+}

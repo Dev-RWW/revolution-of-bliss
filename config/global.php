@@ -12,6 +12,6 @@ return [
 
     // Engine Metadata (For internal use/debugging)
     'engine_version'   => '1.0.0-POC',
-    'copyright_holder' => 'Bliss Ecosystem',
+    'copyright_holder' => 'Revolution of Bliss',
     'contact_email'    => 'anchor@revolutionofbliss.live'
 ];

@@ -1,5 +1,5 @@
 <?php
-namespace Bliss;
+namespace Nexus;
 
 class Engine {
     public static function getVersion() {

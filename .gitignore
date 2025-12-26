@@ -4,6 +4,7 @@ config/env.php
 auth.json
 
 # Logs and Temp files
+logs/
 *.log
 tmp/
 cache/
